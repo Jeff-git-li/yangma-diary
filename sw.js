@@ -1,4 +1,4 @@
-const CACHE_NAME = "yangma-diary-v1";
+const CACHE_NAME = "yangma-diary-v2";
 
 const APP_FILES = [
     "./",
@@ -6,6 +6,9 @@ const APP_FILES = [
     "./style.css",
     "./script.js",
     "./manifest.webmanifest",
+    "./icons/icon-120.png",
+    "./icons/icon-152.png",
+    "./icons/icon-167.png",
     "./icons/icon-180.png",
     "./icons/icon-192.png",
     "./icons/icon-512.png"
