@@ -632,6 +632,57 @@ function renderWishGrid(
                     );
 
 
+                const allocationHTML =
+                    wish.category === "包袋"
+                        ? `
+
+                            <div class="allocation">
+
+                                <div class="allocation-top">
+
+                                    <span>
+                                        配货进度
+                                    </span>
+
+                                    <span>
+                                        ${money(
+                                            completed,
+                                            wish.currency
+                                        )}
+                                        /
+                                        ${money(
+                                            allocation,
+                                            wish.currency
+                                        )}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="progress">
+
+                                    <div
+                                        class="progress-bar"
+                                        style="
+                                            width:${percentage}%
+                                        "
+                                    ></div>
+
+                                </div>
+
+
+                                <div
+                                    class="allocation-complete"
+                                >
+                                    ${completeText}
+                                </div>
+
+                            </div>
+
+                          `
+                        : "";
+
+
                 return `
 
                     <article class="wish-card">
@@ -701,48 +752,7 @@ function renderWishGrid(
                             </div>
 
 
-                            <div class="allocation">
-
-                                <div class="allocation-top">
-
-                                    <span>
-                                        配货进度
-                                    </span>
-
-                                    <span>
-                                        ${money(
-                                            completed,
-                                            wish.currency
-                                        )}
-                                        /
-                                        ${money(
-                                            allocation,
-                                            wish.currency
-                                        )}
-                                    </span>
-
-                                </div>
-
-
-                                <div class="progress">
-
-                                    <div
-                                        class="progress-bar"
-                                        style="
-                                            width:${percentage}%
-                                        "
-                                    ></div>
-
-                                </div>
-
-
-                                <div
-                                    class="allocation-complete"
-                                >
-                                    ${completeText}
-                                </div>
-
-                            </div>
+                            ${allocationHTML}
 
 
                             <div class="wish-bottom">

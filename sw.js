@@ -1,4 +1,4 @@
-const CACHE_NAME = "yangma-diary-v6";
+const CACHE_NAME = "yangma-diary-v7";
 
 const APP_FILES = [
     "./",
