@@ -31,17 +31,32 @@ if (
 
 const RECORD_KEY = "yangma_records_v5";
 const WISH_KEY = "yangma_wishlist_v5";
+const DATA_SYNC_KEY = "yangma_data_updated_at_v1";
+
+
+function readJSON(key, fallback) {
+
+    try {
+
+        return JSON.parse(
+            localStorage.getItem(key) ||
+            JSON.stringify(fallback)
+        );
+
+    } catch (error) {
+
+        return fallback;
+
+    }
+
+}
 
 
 let records =
-    JSON.parse(
-        localStorage.getItem(RECORD_KEY) || "[]"
-    );
+    readJSON(RECORD_KEY, []);
 
 let wishes =
-    JSON.parse(
-        localStorage.getItem(WISH_KEY) || "[]"
-    );
+    readJSON(WISH_KEY, []);
 
 
 let currentFilter = "全部";
@@ -163,6 +178,11 @@ function saveData() {
     localStorage.setItem(
         WISH_KEY,
         JSON.stringify(wishes)
+    );
+
+    localStorage.setItem(
+        DATA_SYNC_KEY,
+        String(Date.now())
     );
 
 }
@@ -328,6 +348,147 @@ function getWishCompletedAmount(
 
 
     return manual + automatic;
+
+}
+
+
+function refreshDataFromStorage() {
+
+    records =
+        readJSON(RECORD_KEY, []);
+
+    wishes =
+        readJSON(WISH_KEY, []);
+
+    renderAll();
+
+}
+
+
+function exportData() {
+
+    const payload = {
+        app: "yangma-diary",
+        version: 1,
+        exportedAt:
+            new Date()
+                .toISOString(),
+        records,
+        wishes
+    };
+
+
+    const blob =
+        new Blob(
+            [
+                JSON.stringify(
+                    payload,
+                    null,
+                    2
+                )
+            ],
+            {
+                type: "application/json"
+            }
+        );
+
+
+    const link =
+        document.createElement("a");
+
+
+    const stamp =
+        new Date()
+            .toISOString()
+            .slice(0, 10);
+
+
+    link.href =
+        URL.createObjectURL(blob);
+
+    link.download =
+        `yangma-diary-backup-${stamp}.json`;
+
+    link.click();
+
+    URL.revokeObjectURL(
+        link.href
+    );
+
+    showToast(
+        "数据备份已导出"
+    );
+
+}
+
+
+function importBackupFile(file) {
+
+    if (!file) return;
+
+
+    const reader =
+        new FileReader();
+
+
+    reader.onload =
+        () => {
+
+            try {
+
+                const payload =
+                    JSON.parse(
+                        reader.result
+                    );
+
+
+                if (
+                    !Array.isArray(payload.records) ||
+                    !Array.isArray(payload.wishes)
+                ) {
+
+                    throw new Error(
+                        "Invalid backup"
+                    );
+
+                }
+
+
+                const shouldImport =
+                    confirm(
+                        "导入后会替换当前这台手机里此页面的数据。\n\n确定导入这个备份吗？"
+                    );
+
+
+                if (!shouldImport) return;
+
+
+                records =
+                    payload.records;
+
+                wishes =
+                    payload.wishes;
+
+                saveData();
+
+                renderAll();
+
+                showToast(
+                    "数据已导入"
+                );
+
+            } catch (error) {
+
+                showToast(
+                    "备份文件无法读取"
+                );
+
+            }
+
+        };
+
+
+    reader.readAsText(file);
 
 }
 
@@ -3585,6 +3746,81 @@ if (recordCategory) {
     );
 
 }
+
+
+const exportDataBtn =
+    document.getElementById(
+        "exportDataBtn"
+    );
+
+
+if (exportDataBtn) {
+
+    exportDataBtn.addEventListener(
+        "click",
+        exportData
+    );
+
+}
+
+
+const importDataBtn =
+    document.getElementById(
+        "importDataBtn"
+    );
+
+
+const importDataInput =
+    document.getElementById(
+        "importDataFile"
+    );
+
+
+if (
+    importDataBtn &&
+    importDataInput
+) {
+
+    importDataBtn.addEventListener(
+        "click",
+        () =>
+            importDataInput.click()
+    );
+
+
+    importDataInput.addEventListener(
+        "change",
+        () => {
+
+            importBackupFile(
+                importDataInput.files[0]
+            );
+
+            importDataInput.value =
+                "";
+
+        }
+    );
+
+}
+
+
+window.addEventListener(
+    "storage",
+    event => {
+
+        if (
+            event.key === DATA_SYNC_KEY ||
+            event.key === RECORD_KEY ||
+            event.key === WISH_KEY
+        ) {
+
+            refreshDataFromStorage();
+
+        }
+
+    }
+);
 
 
 /* =====================================================

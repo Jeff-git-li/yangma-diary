@@ -164,6 +164,28 @@ img {
     letter-spacing: .04em;
 }
 
+.data-actions {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.data-action {
+    appearance: none;
+    min-height: 34px;
+    padding: 0 11px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-small);
+    background: transparent;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.data-action:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
 
 /* =====================================================
    TABS
@@ -1424,6 +1446,16 @@ img {
 
     .header-stat {
         display: none;
+    }
+
+    .data-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+
+    .data-action {
+        min-height: 36px;
+        font-size: 12px;
     }
 
     .tabs {
