@@ -1,0 +1,10 @@
+{
+    "name": "养马日记",
+    "short_name": "养马日记",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "background_color": "#f5f1eb",
+    "theme_color": "#f5f1eb",
+    "description": "配货记账本"
+}

@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    >
+
+    <meta
+        name="apple-mobile-web-app-capable"
+        content="yes"
+    >
+
+    <meta
+        name="apple-mobile-web-app-title"
+        content="养马日记"
+    >
+
+    <meta
+        name="theme-color"
+        content="#f5f1eb"
+    >
+
+    <title>养马日记 · 配货记账本</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <link
+        rel="manifest"
+        href="manifest.webmanifest"
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Noto+Serif+SC:wght@400;500;600&family=Inter:wght@300;400;500&display=swap"
+        rel="stylesheet"
+    >
+</head>
+
+<body>
+
+<div class="app">
+
+    <!-- =================================================
+         HEADER
+    ================================================== -->
+
+    <header class="header">
+
+        <div class="container header-inner">
+
+            <div class="brand">
+
+                <div class="brand-main">
+                    养马日记
+                </div>
+
+                <div class="brand-sub">
+                    配货记账本
+                </div>
+
+            </div>
+
+            <div class="header-stat">
+
+                <div class="header-stat-label">
+                    PRIVATE COLLECTION
+                </div>
+
+                <div
+                    class="header-stat-value"
+                    id="headerCount"
+                >
+                    0 Pieces
+                </div>
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- =================================================
+         MAIN
+    ================================================== -->
+
+    <main class="container">
+
+        <!-- =================================================
+             TABS
+        ================================================== -->
+
+        <nav class="tabs">
+
+            <button
+                class="tab active"
+                data-page="wishlist"
+            >
+                心愿单
+            </button>
+
+            <button
+                class="tab"
+                data-page="records"
+            >
+                购物记录
+            </button>
+
+        </nav>
+
+
+        <!-- =================================================
+             WISHLIST PAGE
+        ================================================== -->
+
+        <section
+            id="wishlistPage"
+            class="page"
+        >
+
+            <div class="page-title">
+
+                <div class="page-eyebrow">
+                    WISH LIST
+                </div>
+
+                <h1>
+                    心愿单
+                </h1>
+
+            </div>
+
+
+            <div class="section-head">
+
+                <div class="section-title">
+                    心愿
+                </div>
+
+                <button
+                    class="btn"
+                    id="addWishBtn"
+                    type="button"
+                >
+                    ＋ 新增心愿
+                </button>
+
+            </div>
+
+
+            <div
+                id="wishlistGrid"
+                class="wishlist-grid"
+            ></div>
+
+        </section>
+
+
+        <!-- =================================================
+             RECORDS PAGE
+        ================================================== -->
+
+        <section
+            id="recordsPage"
+            class="page"
+            hidden
+        >
+
+            <div class="page-title">
+
+                <div class="page-eyebrow">
+                    COLLECTION
+                </div>
+
+                <h1>
+                    购物记录
+                </h1>
+
+            </div>
+
+
+            <!-- =================================================
+                 SUMMARY
+            ================================================== -->
+
+            <div class="section-title summary-title">
+                消费总览
+            </div>
+
+
+            <div class="summary-grid">
+
+                <!-- TOTAL SPENDING -->
+
+                <div class="summary-card">
+
+                    <div class="summary-label">
+                        TOTAL SPENDING
+                    </div>
+
+                    <div
+                        class="summary-number"
+                        id="totalSpending"
+                    >
+                        —
+                    </div>
+
+                    <div
+                        class="summary-detail"
+                        id="currencySummary"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+                <!-- COLLECTION -->
+
+                <div class="summary-card">
+
+                    <div class="summary-label">
+                        COLLECTION
+                    </div>
+
+                    <div
+                        class="summary-number"
+                        id="pieceCount"
+                    >
+                        0
+                    </div>
+
+                    <div class="summary-detail">
+                        件藏品
+                    </div>
+
+                </div>
+
+
+                <!-- LATEST -->
+
+                <div class="summary-card">
+
+                    <div class="summary-label">
+                        LATEST
+                    </div>
+
+                    <div
+                        class="summary-number"
+                        id="latestDate"
+                    >
+                        —
+                    </div>
+
+                    <div
+                        class="summary-detail"
+                        id="latestName"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+                <!-- WISHLIST -->
+
+                <div class="summary-card">
+
+                    <div class="summary-label">
+                        WISHLIST
+                    </div>
+
+                    <div
+                        class="summary-number"
+                        id="wishlistCount"
+                    >
+                        0
+                    </div>
+
+                    <div class="summary-detail">
+                        件心愿
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 RECORD LIST
+            ================================================== -->
+
+            <section class="section">
+
+                <div class="section-head">
+
+                    <div class="section-title">
+                        记录
+                    </div>
+
+                    <button
+                        class="btn"
+                        id="addRecordBtn"
+                        type="button"
+                    >
+                        ＋ 新增记录
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="categoryFilters"
+                    class="filters"
+                ></div>
+
+
+                <div
+                    id="recordList"
+                    class="record-list"
+                ></div>
+
+            </section>
+
+
+            <!-- =================================================
+                 ANALYSIS
+            ================================================== -->
+
+            <section class="section">
+
+                <div class="section-head">
+
+                    <div class="section-title">
+                        消费权重
+                    </div>
+
+                    <div class="analysis-tabs">
+
+                        <button
+                            class="analysis-tab active"
+                            id="withBagBtn"
+                            type="button"
+                        >
+                            含包袋
+                        </button>
+
+                        <button
+                            class="analysis-tab"
+                            id="withoutBagBtn"
+                            type="button"
+                        >
+                            不含包袋
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     STORE SELECTOR
+                ================================================== -->
+
+                <div class="analysis-store-row">
+
+                    <div class="analysis-store-label">
+                        店铺
+                    </div>
+
+                    <select
+                        id="analysisStore"
+                        class="analysis-store-select"
+                    >
+
+                        <option value="全部">
+                            全部店铺
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- =================================================
+                     PIE
+                ================================================== -->
+
+                <div class="analysis-card">
+
+                    <div class="analysis-layout">
+
+                        <div class="pie-wrap">
+
+                            <div
+                                class="pie"
+                                id="pie"
+                            >
+
+                                <div class="pie-center">
+
+                                    <span>
+                                        消费总额
+                                    </span>
+
+                                    <strong
+                                        id="pieTotal"
+                                    >
+                                        —
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <div
+                            class="legend"
+                            id="legend"
+                        ></div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <div class="bottom-space"></div>
+
+        </section>
+
+    </main>
+
+</div>
+
+
+<!-- =========================================================
+     RECORD MODAL
+========================================================= -->
+
+<div
+    class="modal-backdrop"
+    id="recordModal"
+>
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div
+                class="modal-title"
+                id="recordModalTitle"
+            >
+                新增记录
+            </div>
+
+            <button
+                class="close"
+                type="button"
+                data-close-record
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="recordForm">
+
+            <div class="form-grid">
+
+                <!-- 品名 -->
+
+                <div class="form-group full">
+
+                    <label>
+                        品名
+                    </label>
+
+                    <input
+                        id="recordName"
+                        required
+                        placeholder="例如：Mini Kelly II"
+                    >
+
+                </div>
+
+
+                <!-- 品类 -->
+
+                <div class="form-group">
+
+                    <label>
+                        品类
+                    </label>
+
+                    <select id="recordCategory">
+
+                        <option value="包袋">
+                            包袋
+                        </option>
+
+                        <option value="丝巾">
+                            丝巾
+                        </option>
+
+                        <option value="家居">
+                            家居
+                        </option>
+
+                        <option value="鞋履">
+                            鞋履
+                        </option>
+
+                        <option value="小皮具">
+                            小皮具
+                        </option>
+
+                        <option value="首饰">
+                            首饰
+                        </option>
+
+                        <option value="成衣">
+                            成衣
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- 材质 -->
+
+                <div class="form-group">
+
+                    <label>
+                        材质
+                    </label>
+
+                    <input
+                        id="recordMaterial"
+                        placeholder="例如：Togo"
+                    >
+
+                </div>
+
+
+                <!-- 颜色 -->
+
+                <div class="form-group">
+
+                    <label>
+                        颜色
+                    </label>
+
+                    <input
+                        id="recordColor"
+                        placeholder="例如：Nata"
+                    >
+
+                </div>
+
+
+                <!-- 尺寸 -->
+
+                <div class="form-group">
+
+                    <label>
+                        尺寸
+                    </label>
+
+                    <input
+                        id="recordSize"
+                        placeholder="例如：25"
+                    >
+
+                </div>
+
+
+                <!-- 价格 -->
+
+                <div class="form-group">
+
+                    <label>
+                        价格
+                    </label>
+
+                    <input
+                        id="recordPrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- 币种 -->
+
+                <div class="form-group">
+
+                    <label>
+                        币种
+                    </label>
+
+                    <select id="recordCurrency">
+
+                        <option value="USD">
+                            USD $
+                        </option>
+
+                        <option value="CNY">
+                            CNY ¥
+                        </option>
+
+                        <option value="EUR">
+                            EUR €
+                        </option>
+
+                        <option value="GBP">
+                            GBP £
+                        </option>
+
+                        <option value="HKD">
+                            HKD $
+                        </option>
+
+                        <option value="JPY">
+                            JPY ¥
+                        </option>
+
+                        <option value="SGD">
+                            SGD $
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- 门店 -->
+
+                <div class="form-group">
+
+                    <label>
+                        门店
+                    </label>
+
+                    <input
+                        id="recordStore"
+                        placeholder="例如：Beverly Hills"
+                    >
+
+                </div>
+
+
+                <!-- 日期 -->
+
+                <div class="form-group">
+
+                    <label>
+                        日期
+                    </label>
+
+                    <input
+                        id="recordDate"
+                        type="date"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- =================================================
+                     配货归属
+                ================================================== -->
+
+                <div
+                    class="form-group full"
+                    id="allocationGroup"
+                >
+
+                    <label>
+                        配货归属
+                    </label>
+
+                    <select id="recordWish">
+
+                        <option value="">
+                            不计入配货
+                        </option>
+
+                    </select>
+
+                    <div class="field-hint">
+                        除包袋外的消费可计入心愿单配货额度
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     商品图片
+                ================================================== -->
+
+                <div class="form-group full">
+
+                    <label>
+                        商品图片
+                    </label>
+
+                    <input
+                        id="recordImage"
+                        type="file"
+                        accept="image/*"
+                    >
+
+                    <div
+                        class="image-preview"
+                        id="recordImagePreview"
+                    >
+
+                        <img
+                            id="recordPreviewImg"
+                            alt=""
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-close-record
+                >
+                    取消
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn"
+                >
+                    保存记录
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     WISH MODAL
+========================================================= -->
+
+<div
+    class="modal-backdrop"
+    id="wishModal"
+>
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div
+                class="modal-title"
+                id="wishModalTitle"
+            >
+                新增心愿
+            </div>
+
+            <button
+                class="close"
+                type="button"
+                data-close-wish
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <form id="wishForm">
+
+            <div class="form-grid">
+
+                <!-- 款式 -->
+
+                <div class="form-group full">
+
+                    <label>
+                        款式
+                    </label>
+
+                    <input
+                        id="wishName"
+                        required
+                        placeholder="例如：Birkin 25"
+                    >
+
+                </div>
+
+
+                <!-- 品类 -->
+
+                <div class="form-group">
+
+                    <label>
+                        品类
+                    </label>
+
+                    <select id="wishCategory">
+
+                        <option value="包袋">
+                            包袋
+                        </option>
+
+                        <option value="丝巾">
+                            丝巾
+                        </option>
+
+                        <option value="家居">
+                            家居
+                        </option>
+
+                        <option value="鞋履">
+                            鞋履
+                        </option>
+
+                        <option value="小皮具">
+                            小皮具
+                        </option>
+
+                        <option value="首饰">
+                            首饰
+                        </option>
+
+                        <option value="成衣">
+                            成衣
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- 预估价格 -->
+
+                <div class="form-group">
+
+                    <label>
+                        预估价格
+                    </label>
+
+                    <input
+                        id="wishPrice"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                </div>
+
+
+                <!-- 币种 -->
+
+                <div class="form-group">
+
+                    <label>
+                        币种
+                    </label>
+
+                    <select id="wishCurrency">
+
+                        <option value="USD">
+                            USD $
+                        </option>
+
+                        <option value="CNY">
+                            CNY ¥
+                        </option>
+
+                        <option value="EUR">
+                            EUR €
+                        </option>
+
+                        <option value="GBP">
+                            GBP £
+                        </option>
+
+                        <option value="HKD">
+                            HKD $
+                        </option>
+
+                        <option value="JPY">
+                            JPY ¥
+                        </option>
+
+                        <option value="SGD">
+                            SGD $
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- 优先级 -->
+
+                <div class="form-group">
+
+                    <label>
+                        优先级
+                    </label>
+
+                    <select id="wishPriority">
+
+                        <option value="梦想款">
+                            梦想款
+                        </option>
+
+                        <option value="优先">
+                            优先
+                        </option>
+
+                        <option value="观望">
+                            观望
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- 状态 -->
+
+                <div class="form-group">
+
+                    <label>
+                        状态
+                    </label>
+
+                    <select id="wishStatus">
+
+                        <option value="待入手">
+                            待入手
+                        </option>
+
+                        <option value="已在途">
+                            已在途
+                        </option>
+
+                        <option value="已入手">
+                            已入手
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- 配货额度 -->
+
+                <div class="form-group">
+
+                    <label>
+                        配货额度
+                    </label>
+
+                    <input
+                        id="wishAllocation"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                    >
+
+                </div>
+
+
+                <!-- 已完成配货 -->
+
+                <div class="form-group">
+
+                    <label>
+                        已完成配货
+                    </label>
+
+                    <input
+                        id="wishAllocated"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value="0"
+                    >
+
+                    <div class="field-hint">
+                        系统会自动加上归属于此心愿的购物记录
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     商品图片
+                ================================================== -->
+
+                <div class="form-group full">
+
+                    <label>
+                        商品图片
+                    </label>
+
+                    <input
+                        id="wishImage"
+                        type="file"
+                        accept="image/*"
+                    >
+
+                    <div
+                        class="image-preview"
+                        id="wishImagePreview"
+                    >
+
+                        <img
+                            id="wishPreviewImg"
+                            alt=""
+                        >
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- FOOTER -->
+
+            <div class="modal-footer">
+
+                <button
+                    type="button"
+                    class="btn btn-light"
+                    data-close-wish
+                >
+                    取消
+                </button>
+
+                <button
+                    type="submit"
+                    class="btn"
+                >
+                    保存心愿
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =========================================================
+     TOAST
+========================================================= -->
+
+<div
+    class="toast"
+    id="toast"
+></div>
+
+
+<!-- =========================================================
+     APP JS
+========================================================= -->
+
+<script src="script.js"></script>
+
+</body>
+</html>
