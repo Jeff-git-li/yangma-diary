@@ -152,6 +152,33 @@ const analysisColors = {
 };
 
 
+const categoryGroups = {
+
+    "包袋": [
+        "包袋"
+    ],
+
+    "丝巾 / 家居": [
+        "丝巾",
+        "家居"
+    ],
+
+    "鞋履 / 小皮具": [
+        "鞋履",
+        "小皮具"
+    ],
+
+    "首饰": [
+        "首饰"
+    ],
+
+    "成衣": [
+        "成衣"
+    ]
+
+};
+
+
 /* =====================================================
    BASIC HELPERS
 ===================================================== */
@@ -818,6 +845,57 @@ function renderHarvested() {
         "把心愿状态切到「已入手」后会出现在这里",
         "Harvested"
     );
+
+}
+
+
+function renderWishlistAnalysis() {
+
+    const activeWishes =
+        wishes.filter(
+            wish =>
+                getWishStatus(wish) !==
+                "已入手"
+        );
+
+
+    const totals =
+        buildCategoryTotals(
+            activeWishes,
+            wish =>
+                wish.price
+        );
+
+
+    const entries =
+        Object.entries(totals)
+            .filter(
+                ([, value]) =>
+                    value > 0
+            );
+
+
+    renderCategoryPie({
+        pie:
+            document.getElementById(
+                "wishPie"
+            ),
+        totalElement:
+            document.getElementById(
+                "wishPieTotal"
+            ),
+        legend:
+            document.getElementById(
+                "wishLegend"
+            ),
+        entries,
+        items:
+            activeWishes,
+        emptyTitle:
+            "暂无心愿预算",
+        emptyText:
+            "新增心愿并填写预估价格后会显示占比"
+    });
 
 }
 
@@ -2571,6 +2649,241 @@ function renderStoreFilter() {
 }
 
 
+function buildCategoryTotals(
+    items,
+    getValue
+) {
+
+    const totals = {};
+
+
+    Object.keys(categoryGroups)
+        .forEach(
+            key =>
+                totals[key] = 0
+        );
+
+
+    items.forEach(
+        item => {
+
+            Object.entries(categoryGroups)
+                .forEach(
+                    ([group, groupCategories]) => {
+
+                        if (
+                            groupCategories.includes(
+                                item.category
+                            )
+                        ) {
+
+                            totals[group] +=
+                                Number(
+                                    getValue(item) ||
+                                    0
+                                );
+
+                        }
+
+                    }
+                );
+
+        }
+    );
+
+
+    return totals;
+
+}
+
+
+function renderCategoryPie({
+    pie,
+    totalElement,
+    legend,
+    entries,
+    items,
+    emptyTitle,
+    emptyText
+}) {
+
+    const total =
+        entries.reduce(
+            (sum, [, value]) =>
+                sum + value,
+            0
+        );
+
+
+    if (
+        !pie ||
+        !totalElement ||
+        !legend
+    ) {
+
+        return;
+
+    }
+
+
+    if (!total) {
+
+        pie.style.background =
+            "#e4ddd2";
+
+        totalElement.textContent =
+            "—";
+
+        legend.innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-title">
+                    ${emptyTitle}
+                </div>
+
+                <div class="empty-text">
+                    ${emptyText}
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    let current = 0;
+
+
+    const segments =
+        entries.map(
+            ([name, value]) => {
+
+                const percent =
+                    value /
+                    total *
+                    100;
+
+                const start =
+                    current;
+
+                current += percent;
+
+                return {
+                    name,
+                    value,
+                    percent,
+                    start,
+                    end: current,
+                    color:
+                        analysisColors[name]
+                };
+
+            }
+        );
+
+
+    pie.style.background =
+        `conic-gradient(${
+            segments
+                .map(
+                    segment =>
+                        `${segment.color} ${segment.start}% ${segment.end}%`
+                )
+                .join(", ")
+        })`;
+
+
+    const currencies =
+        Array.from(
+            new Set(
+                items
+                    .filter(
+                        item =>
+                            Number(
+                                item.price || 0
+                            ) > 0
+                    )
+                    .map(
+                        item =>
+                            item.currency ||
+                            "USD"
+                    )
+            )
+        );
+
+
+    if (currencies.length === 1) {
+
+        totalElement.textContent =
+            money(
+                total,
+                currencies[0]
+            );
+
+    } else if (currencies.length > 1) {
+
+        totalElement.textContent =
+            "多币种";
+
+    } else {
+
+        totalElement.textContent =
+            "—";
+
+    }
+
+
+    legend.innerHTML =
+        segments.map(
+            segment => `
+
+                <div class="legend-item">
+
+                    <div
+                        class="legend-dot"
+                        style="background:${segment.color}"
+                    ></div>
+
+                    <div>
+
+                        <div>
+                            ${escapeHTML(segment.name)}
+                        </div>
+
+                        <div class="legend-percent">
+                            ${segment.percent.toFixed(1)}%
+                        </div>
+
+                    </div>
+
+                    <div class="legend-value">
+                        ${
+                            currencies.length === 1
+                                ? money(
+                                    segment.value,
+                                    currencies[0]
+                                )
+                                : segment.value.toLocaleString(
+                                    "en-US",
+                                    {
+                                        maximumFractionDigits: 2
+                                    }
+                                )
+                        }
+                    </div>
+
+                </div>
+
+            `
+        ).join("");
+
+}
+
+
 /* =====================================================
    PIE ANALYSIS
 ===================================================== */
@@ -2635,77 +2948,8 @@ function renderStoreFilter() {
 
 function renderAnalysis() {
 
-    /*
-        首先确保店铺选择器只有一个。
-    */
-
     renderStoreFilter();
 
-
-    /*
-        品类分组。
-
-        包袋单独一个颜色。
-
-        丝巾 + 家居
-        共用深绿色。
-
-        鞋履 + 小皮具
-        共用深蓝色。
-
-        首饰
-        橙色。
-
-        成衣
-        深紫色。
-    */
-
-    const groups = {
-
-        "包袋": [
-            "包袋"
-        ],
-
-        "丝巾 / 家居": [
-            "丝巾",
-            "家居"
-        ],
-
-        "鞋履 / 小皮具": [
-            "鞋履",
-            "小皮具"
-        ],
-
-        "首饰": [
-            "首饰"
-        ],
-
-        "成衣": [
-            "成衣"
-        ]
-
-    };
-
-
-    /*
-        初始化金额。
-    */
-
-    const totals = {};
-
-
-    Object.keys(groups)
-        .forEach(
-            key =>
-                totals[key] = 0
-        );
-
-
-    /*
-        =================================================
-        第一步：按照店铺过滤
-        =================================================
-    */
 
     let analysisRecords =
         [...records];
@@ -2727,406 +2971,68 @@ function renderAnalysis() {
     }
 
 
-    /*
-        =================================================
-        第二步：按照
-        「含包袋 / 不含包袋」
-        过滤
-        =================================================
-    */
-
     analysisRecords =
         analysisRecords.filter(
-            record => {
-
-                /*
-                    不含包袋：
-                    排除包袋。
-                */
-
-                if (
-                    !analysisWithBag &&
-                    record.category ===
-                    "包袋"
-                ) {
-
-                    return false;
-
-                }
-
-
-                return true;
-
-            }
+            record =>
+                analysisWithBag ||
+                record.category !== "包袋"
         );
 
 
-    /*
-        =================================================
-        第三步：
-        按品类组累计消费金额
-        =================================================
-    */
+    const totals =
+        buildCategoryTotals(
+            analysisRecords,
+            record =>
+                record.price
+        );
 
-    analysisRecords.forEach(
-        record => {
 
-            Object.entries(
-                groups
-            ).forEach(
-                ([group, groupCategories]) => {
+    const entries =
+        Object.entries(totals)
+            .filter(
+                ([group, value]) => {
 
                     if (
-                        groupCategories.includes(
-                            record.category
-                        )
+                        !analysisWithBag &&
+                        group === "包袋"
                     ) {
 
-                        totals[group] +=
-                            Number(
-                                record.price ||
-                                0
-                            );
+                        return false;
 
                     }
+
+
+                    return value > 0;
 
                 }
             );
 
-        }
-    );
 
-
-    /*
-        =================================================
-        第四步：
-        不含包袋时隐藏包袋
-        =================================================
-    */
-
-    const visible =
-        Object.entries(
-            totals
-        ).filter(
-            ([group]) => {
-
-                if (
-                    !analysisWithBag &&
-                    group === "包袋"
-                ) {
-
-                    return false;
-
-                }
-
-
-                return true;
-
-            }
-        );
-
-
-    /*
-        总消费。
-    */
-
-    const total =
-        visible.reduce(
-            (sum, [, value]) =>
-                sum + value,
-            0
-        );
-
-
-    const pie =
-        document.getElementById(
-            "pie"
-        );
-
-
-    const pieTotal =
-        document.getElementById(
-            "pieTotal"
-        );
-
-
-    const legend =
-        document.getElementById(
-            "legend"
-        );
-
-
-    if (
-        !pie ||
-        !pieTotal ||
-        !legend
-    ) {
-
-        return;
-
-    }
-
-
-    /*
-        =================================================
-        没有消费数据
-        =================================================
-    */
-
-    if (!total) {
-
-        pie.style.background =
-            "#e4ddd2";
-
-
-        pieTotal.textContent =
-            "—";
-
-
-        legend.innerHTML = `
-
-            <div class="empty">
-
-                <div class="empty-title">
-
-                    ${
-                        analysisStore ===
-                        "全部"
-
-                            ? "暂无消费数据"
-
-                            : `「${escapeHTML(
-                                analysisStore
-                            )}」暂无消费数据`
-                    }
-
-                </div>
-
-
-                <div class="empty-text">
-
-                    ${
-                        analysisWithBag
-                            ? "含包袋"
-                            : "不含包袋"
-                    }
-
-                </div>
-
-            </div>
-
-        `;
-
-
-        return;
-
-    }
-
-
-    /*
-        =================================================
-        生成饼图 segments
-        =================================================
-    */
-
-    let current =
-        0;
-
-
-    const segments =
-        visible.map(
-            ([name, value]) => {
-
-                const percent =
-                    value /
-                    total *
-                    100;
-
-
-                const start =
-                    current;
-
-
-                current += percent;
-
-
-                return {
-
-                    name,
-
-                    value,
-
-                    percent,
-
-                    start,
-
-                    end:
-                        current,
-
-                    color:
-                        analysisColors[
-                            name
-                        ]
-
-                };
-
-            }
-        );
-
-
-    /*
-        =================================================
-        生成 conic-gradient
-        =================================================
-    */
-
-    const gradient =
-        segments
-            .map(
-                segment =>
-                    `${segment.color} ${segment.start}% ${segment.end}%`
-            )
-            .join(", ");
-
-
-    pie.style.background =
-        `conic-gradient(${gradient})`;
-
-
-    /*
-        =================================================
-        币种处理
-        =================================================
-
-        当前店铺可能存在多个币种。
-
-        如果只有一种：
-        显示金额。
-
-        如果存在多种：
-        显示「多币种」。
-
-        不进行自动汇率换算。
-    */
-
-    const currencies =
-        Array.from(
-            new Set(
-                analysisRecords
-                    .filter(
-                        record =>
-                            Number(
-                                record.price || 0
-                            ) > 0
-                    )
-                    .map(
-                        record =>
-                            record.currency ||
-                            "USD"
-                    )
-            )
-        );
-
-
-    if (
-        currencies.length === 1
-    ) {
-
-        pieTotal.textContent =
-            money(
-                total,
-                currencies[0]
-            );
-
-    } else if (
-        currencies.length > 1
-    ) {
-
-        pieTotal.textContent =
-            "多币种";
-
-    } else {
-
-        pieTotal.textContent =
-            "—";
-
-    }
-
-
-    /*
-        =================================================
-        Legend
-        =================================================
-    */
-
-    legend.innerHTML =
-        segments.map(
-            segment => `
-
-                <div
-                    class="legend-item"
-                >
-
-                    <div
-                        class="legend-dot"
-                        style="
-                            background:
-                            ${segment.color}
-                        "
-                    ></div>
-
-
-                    <div>
-
-                        <div>
-                            ${escapeHTML(
-                                segment.name
-                            )}
-                        </div>
-
-
-                        <div
-                            style="
-                                color:
-                                var(--orange);
-                                font-size:
-                                9px;
-                                margin-top:
-                                2px;
-                            "
-                        >
-                            ${segment.percent.toFixed(1)}%
-                        </div>
-
-                    </div>
-
-
-                    <div
-                        class="legend-value"
-                    >
-
-                        ${
-                            currencies.length === 1
-
-                                ? money(
-                                    segment.value,
-                                    currencies[0]
-                                )
-
-                                : segment.value.toLocaleString(
-                                    "en-US",
-                                    {
-                                        maximumFractionDigits: 2
-                                    }
-                                )
-                        }
-
-                    </div>
-
-                </div>
-
-            `
-        ).join("");
+    renderCategoryPie({
+        pie:
+            document.getElementById(
+                "pie"
+            ),
+        totalElement:
+            document.getElementById(
+                "pieTotal"
+            ),
+        legend:
+            document.getElementById(
+                "legend"
+            ),
+        entries,
+        items:
+            analysisRecords,
+        emptyTitle:
+            analysisStore === "全部"
+                ? "暂无消费数据"
+                : `「${escapeHTML(analysisStore)}」暂无消费数据`,
+        emptyText:
+            analysisWithBag
+                ? "含包袋"
+                : "不含包袋"
+    });
 
 }
 
@@ -3360,6 +3266,8 @@ function setupImageUploads() {
 function renderAll() {
 
     renderWishlist();
+
+    renderWishlistAnalysis();
 
     renderHarvested();
 
