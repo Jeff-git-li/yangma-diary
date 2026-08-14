@@ -84,7 +84,6 @@ const categories = [
 
 const statusList = [
     "待入手",
-    "已在途",
     "已入手"
 ];
 
@@ -333,22 +332,28 @@ function getWishCompletedAmount(
 }
 
 
+function getWishStatus(wish) {
+
+    return wish.status === "已入手"
+        ? "已入手"
+        : "待入手";
+
+}
+
+
 /* =====================================================
    WISHLIST
 ===================================================== */
 
-function renderWishlist() {
+function renderWishGrid(
+    grid,
+    wishItems,
+    emptyTitle,
+    emptyText,
+    placeholderText
+) {
 
-    const grid =
-        document.getElementById(
-            "wishlistGrid"
-        );
-
-
-    if (!grid) return;
-
-
-    if (!wishes.length) {
+    if (!wishItems.length) {
 
         grid.innerHTML = `
 
@@ -358,11 +363,11 @@ function renderWishlist() {
             >
 
                 <div class="empty-title">
-                    暂无心愿
+                    ${emptyTitle}
                 </div>
 
                 <div class="empty-text">
-                    点击「新增心愿」
+                    ${emptyText}
                 </div>
 
             </div>
@@ -375,7 +380,7 @@ function renderWishlist() {
 
 
     grid.innerHTML =
-        wishes.map(
+        wishItems.map(
             wish => {
 
                 const allocation =
@@ -433,6 +438,12 @@ function renderWishlist() {
                         : `已完成 ${percentage.toFixed(0)}%`;
 
 
+                const statusText =
+                    getWishStatus(
+                        wish
+                    );
+
+
                 return `
 
                     <article class="wish-card">
@@ -455,7 +466,7 @@ function renderWishlist() {
                                     <div
                                         class="image-placeholder"
                                     >
-                                        Wishlist
+                                        ${placeholderText}
                                     </div>
                                   `
                             }
@@ -553,7 +564,7 @@ function renderWishlist() {
                                     data-cycle-status="${wish.id}"
                                 >
                                     ${escapeHTML(
-                                        wish.status
+                                        statusText
                                     )}
                                 </button>
 
@@ -586,6 +597,66 @@ function renderWishlist() {
 
             }
         ).join("");
+
+}
+
+
+function renderWishlist() {
+
+    const grid =
+        document.getElementById(
+            "wishlistGrid"
+        );
+
+
+    if (!grid) return;
+
+
+    const activeWishes =
+        wishes.filter(
+            wish =>
+                getWishStatus(wish) !==
+                "已入手"
+        );
+
+
+    renderWishGrid(
+        grid,
+        activeWishes,
+        "暂无心愿",
+        "点击「新增心愿」",
+        "Wishlist"
+    );
+
+}
+
+
+function renderHarvested() {
+
+    const grid =
+        document.getElementById(
+            "harvestedGrid"
+        );
+
+
+    if (!grid) return;
+
+
+    const harvestedWishes =
+        wishes.filter(
+            wish =>
+                getWishStatus(wish) ===
+                "已入手"
+        );
+
+
+    renderWishGrid(
+        grid,
+        harvestedWishes,
+        "暂无收割",
+        "把心愿状态切到「已入手」后会出现在这里",
+        "Harvested"
+    );
 
 }
 
@@ -683,8 +754,7 @@ function openWishModal(id = null) {
         document.getElementById(
             "wishStatus"
         ).value =
-            wish.status ||
-            "待入手";
+            getWishStatus(wish);
 
 
         document.getElementById(
@@ -833,7 +903,9 @@ function saveWish(event) {
                 .getElementById(
                     "wishStatus"
                 )
-                .value,
+                .value === "已入手"
+                    ? "已入手"
+                    : "待入手",
 
         allocation:
             Number(
@@ -2011,7 +2083,11 @@ function updateSummary() {
     if (wishlistCount) {
 
         wishlistCount.textContent =
-            wishes.length;
+            wishes.filter(
+                wish =>
+                    getWishStatus(wish) !==
+                    "已入手"
+            ).length;
 
     }
 
@@ -3124,6 +3200,8 @@ function renderAll() {
 
     renderWishlist();
 
+    renderHarvested();
+
     renderFilters();
 
     renderRecords();
@@ -3291,34 +3369,19 @@ document
                         button.dataset.page;
 
 
-                    const wishlistPage =
-                        document.getElementById(
-                            "wishlistPage"
+                    document
+                        .querySelectorAll(
+                            ".page"
+                        )
+                        .forEach(
+                            pageElement => {
+
+                                pageElement.hidden =
+                                    pageElement.id !==
+                                    `${page}Page`;
+
+                            }
                         );
-
-
-                    const recordsPage =
-                        document.getElementById(
-                            "recordsPage"
-                        );
-
-
-                    if (wishlistPage) {
-
-                        wishlistPage.hidden =
-                            page !==
-                            "wishlist";
-
-                    }
-
-
-                    if (recordsPage) {
-
-                        recordsPage.hidden =
-                            page !==
-                            "records";
-
-                    }
 
                 }
             );

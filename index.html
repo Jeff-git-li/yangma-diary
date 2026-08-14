@@ -140,6 +140,13 @@
 
             <button
                 class="tab"
+                data-page="harvested"
+            >
+                已收割
+            </button>
+
+            <button
+                class="tab"
                 data-page="records"
             >
                 购物记录
@@ -189,6 +196,46 @@
 
             <div
                 id="wishlistGrid"
+                class="wishlist-grid"
+            ></div>
+
+        </section>
+
+
+        <!-- =================================================
+             HARVESTED PAGE
+        ================================================== -->
+
+        <section
+            id="harvestedPage"
+            class="page"
+            hidden
+        >
+
+            <div class="page-title">
+
+                <div class="page-eyebrow">
+                    HARVESTED
+                </div>
+
+                <h1>
+                    已收割
+                </h1>
+
+            </div>
+
+
+            <div class="section-head">
+
+                <div class="section-title">
+                    已入手心愿
+                </div>
+
+            </div>
+
+
+            <div
+                id="harvestedGrid"
                 class="wishlist-grid"
             ></div>
 
@@ -999,10 +1046,6 @@
 
                         <option value="待入手">
                             待入手
-                        </option>
-
-                        <option value="已在途">
-                            已在途
                         </option>
 
                         <option value="已入手">
